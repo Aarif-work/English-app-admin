@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Word of the Day</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i data-lucide="languages"></i>
+                    <span>WordAdmin</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#word-management" class="nav-item" data-section="word-management">
+                    <i data-lucide="calendar-days"></i>
+                    <span>Word of the Day</span>
+                </a>
+                <a href="#submissions" class="nav-item" data-section="submissions">
+                    <i data-lucide="clipboard-check"></i>
+                    <span>Submissions</span>
+                </a>
+                <a href="#users" class="nav-item" data-section="users">
+                    <i data-lucide="users"></i>
+                    <span>User Management</span>
+                </a>
+                <a href="#scores" class="nav-item" data-section="scores">
+                    <i data-lucide="tally-5"></i>
+                    <span>Score Monitoring</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="admin-profile">
+                    <div class="profile-pic">A</div>
+                    <div class="profile-info">
+                        <span class="name">Admin User</span>
+                        <span class="role">Super Admin</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 id="section-title">Dashboard</h1>
+                <div class="top-bar-actions">
+                    <div class="date-display" id="current-date"></div>
+                    <button class="btn btn-icon"><i data-lucide="bell"></i></button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Sections will be injected here via JavaScript or toggled -->
+
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="content-section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon users"><i data-lucide="users"></i></div>
+                            <div class="stat-details">
+                                <span class="stat-label">Total Users</span>
+                                <h3 id="stat-total-users">0</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon submissions"><i data-lucide="send"></i></div>
+                            <div class="stat-details">
+                                <span class="stat-label">Sentences Today</span>
+                                <h3 id="stat-sentences-today">0</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon info"><i data-lucide="award"></i></div>
+                            <div class="stat-details">
+                                <span class="stat-label">Avg Weekly Score</span>
+                                <h3 id="stat-avg-score">0</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon reviewed"><i data-lucide="bar-chart-2"></i></div>
+                            <div class="stat-details">
+                                <span class="stat-label">Weekly Activity</span>
+                                <h3 id="stat-weekly-total">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-secondary-grid">
+                        <div class="card status-card">
+                            <h3>Current Day Status</h3>
+                            <div class="status-list">
+                                <div class="status-item">
+                                    <span>Word Posted</span>
+                                    <span id="status-word-posted" class="badge badge-negative">No</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>Daily Reset Status</span>
+                                    <span id="status-daily-reset" class="badge badge-positive">Completed</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card quick-actions">
+                            <h3>Quick Actions</h3>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" onclick="app.navigateTo('word-management')">
+                                    <i data-lucide="plus"></i> Post Today's Word
+                                </button>
+                                <button class="btn btn-outline" onclick="app.navigateTo('submissions')">
+                                    <i data-lucide="eye"></i> View All Submissions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Word Management Section -->
+                <section id="word-management" class="content-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Daily Word Entry</h2>
+                            <p>Add the English word for today with its Tamil translations.</p>
+                        </div>
+                        <form id="word-form" class="admin-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="word-date">Date</label>
+                                    <input type="date" id="word-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="english-word">English Word</label>
+                                    <input type="text" id="english-word" placeholder="e.g. Resilience" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="english-meaning">English Meaning</label>
+                                    <textarea id="english-meaning" rows="2"
+                                        placeholder="The capacity to recover quickly from difficulties."
+                                        required></textarea>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="english-example">English Example Sentence</label>
+                                    <textarea id="english-example" rows="2"
+                                        placeholder="She showed great resilience after the set back."
+                                        required></textarea>
+                                </div>
+                                <hr class="form-divider">
+                                <div class="form-group">
+                                    <label for="tamil-word">Tamil Word</label>
+                                    <input type="text" id="tamil-word" placeholder="e.g. மீண்டெழும் திறன்" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="tamil-meaning">Tamil Meaning</label>
+                                    <textarea id="tamil-meaning" rows="2"
+                                        placeholder="சவால்களை எதிர்கொண்டு மீண்டும் பழைய நிலைக்குத் திரும்பும் திறன்."
+                                        required></textarea>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="tamil-example">Tamil Example Sentence</label>
+                                    <textarea id="tamil-example" rows="2"
+                                        placeholder="தோல்விக்குப் பிறகும் அவர் மீண்டெழும் திறனைக் காட்டினார்."
+                                        required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="save-word-btn">Save Word</button>
+                                <button type="reset" class="btn btn-outline">Clear</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Submissions Section -->
+                <section id="submissions" class="content-section">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User Name</th>
+                                    <th>Submitted Sentence</th>
+                                </tr>
+                            </thead>
+                            <tbody id="submissions-table-body">
+                                <!-- Data injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="users" class="content-section">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User Info</th>
+                                    <th>Weekly Score</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <!-- Data injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Scores Section -->
+                <section id="scores" class="content-section">
+                    <div class="scores-header">
+                        <button class="btn btn-danger" id="reset-scores-btn">
+                            <i data-lucide="refresh-ccw"></i> Reset All Weekly Scores
+                        </button>
+                    </div>
+                    <div class="scores-grid">
+                        <div class="card">
+                            <h3>Top Performers</h3>
+                            <div id="top-performers-list"></div>
+                        </div>
+                        <div class="card">
+                            <h3>Submission Activity (Daily)</h3>
+                            <div id="daily-activity-chart-placeholder" class="chart-mockup">
+                                <!-- Simple CSS visual for activity -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>User</th>
+                                    <th>Submissions</th>
+                                    <th>Weekly Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scores-table-body">
+                                <!-- Data injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-container" class="modal-overlay">
+        <div class="modal card">
+            <div class="modal-header">
+                <h3 id="modal-title">Action Title</h3>
+                <button class="modal-close" id="close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Modal content injected here -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <!-- Modal buttons injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
