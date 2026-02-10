@@ -22,7 +22,10 @@ import {
   Filter,
   ArrowUpRight,
   TrendingUp,
-  Clock
+  Clock,
+  Moon,
+  Sun,
+  Download
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -121,7 +124,7 @@ const Sidebar = ({ currentSection, setSection, isOpen, setIsOpen }) => {
   );
 };
 
-const Header = ({ title, toggleSidebar }) => {
+const Header = ({ title, toggleSidebar, theme, toggleTheme }) => {
   const [date, setDate] = useState(new Date());
 
   useEffect(() => {
@@ -141,6 +144,9 @@ const Header = ({ title, toggleSidebar }) => {
         <div className="date-display">
           {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </div>
+        <motion.button className="btn-icon" onClick={toggleTheme} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+          {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+        </motion.button>
         <motion.button className="btn-icon" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
           <Bell size={20} />
         </motion.button>
@@ -154,6 +160,9 @@ const Dashboard = ({ users, submissions, setSection }) => {
   const submissionsToday = submissions.filter(s => s.date === today);
   const totalScore = users.reduce((acc, u) => acc + u.score, 0);
   const avgScore = users.length ? Math.round(totalScore / users.length) : 0;
+
+  // Mock word for today - effectively assuming one is posted for this demo
+  const todaysWord = "Resilience";
 
   return (
     <motion.div {...pageTransition}>
@@ -183,7 +192,7 @@ const Dashboard = ({ users, submissions, setSection }) => {
 
       <div className="dashboard-secondary-grid">
         <div className="card">
-          <div className="card-header" style={{ marginBottom: '1rem' }}>
+          <div className="card-header">
             <div className="card-title-group">
               <h2>Recent Submissions</h2>
               <p>Updates from the last 24 hours</p>
@@ -192,46 +201,75 @@ const Dashboard = ({ users, submissions, setSection }) => {
           </div>
           <div className="status-list">
             {submissions.slice(0, 3).map(sub => (
-              <div key={sub.id} className="status-item" style={{ padding: '0.75rem 0', borderBottom: '1px solid #f1f5f9' }}>
+              <div key={sub.id} className="status-item">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div className="user-avatar" style={{ width: '32px', height: '32px', fontSize: '12px' }}>{sub.userName.charAt(0)}</div>
-                  <div>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>{sub.userName}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{sub.sentence.substring(0, 40)}...</div>
+                  <div className="user-avatar" style={{ width: '40px', height: '40px', fontSize: '14px', background: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#64748b' }}>{sub.userName.charAt(0)}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 600 }}>{sub.userName}</div>
+                    <div style={{ fontSize: '0.875rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{sub.sentence}</div>
                   </div>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <Clock size={12} /> {sub.time}
+                <div style={{ fontSize: '0.875rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}>
+                  <Clock size={14} /> {sub.time}
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="card">
-          <div className="card-header">
+        <div className="card" style={{ padding: '2rem' }}>
+          <div className="card-header" style={{ marginBottom: '1rem' }}>
             <div className="card-title-group">
-              <h2>Overview & Actions</h2>
+              <h2>Today's Word</h2>
             </div>
+            {todaysWord ? <span className="badge badge-positive">Published</span> : <span className="badge badge-negative">Pending</span>}
           </div>
-          <div className="status-list">
-            <div className="status-item">
-              <span style={{ fontWeight: 600, color: '#475569' }}>Today's Word Status</span>
-              <span className="badge badge-negative">Pending Upload</span>
+
+          {todaysWord ? (
+            <div className="todays-word-display" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ padding: '1.25rem', background: 'linear-gradient(135deg, var(--bg-card), var(--primary-light))', borderRadius: '16px', border: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', background: 'radial-gradient(circle, var(--primary) 0%, transparent 70%)', opacity: 0.05, borderRadius: '50%' }}></div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary)', lineHeight: 1.1, marginBottom: '0.25rem' }}>Resilience</h3>
+                    <span style={{ fontSize: '0.9rem', color: '#64748b', fontStyle: 'italic' }}>/rəˈzilyəns/</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#475569', display: 'block' }}>மீண்டெழும் திறன்</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.6)', padding: '0.75rem', borderRadius: '10px', backdropFilter: 'blur(4px)' }}>
+                    <p style={{ fontSize: '0.9rem', lineHeight: '1.5', color: '#334155', margin: 0 }}>
+                      <strong style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', marginRight: '0.5rem', letterSpacing: '0.5px' }}>Meaning</strong>
+                      The capacity to withstand or to recover quickly from difficulties.
+                    </p>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.6)', padding: '0.75rem', borderRadius: '10px', backdropFilter: 'blur(4px)' }}>
+                    <p style={{ fontSize: '0.9rem', lineHeight: '1.5', color: '#334155', fontStyle: 'italic', margin: 0 }}>
+                      <strong style={{ color: '#10b981', fontSize: '0.75rem', textTransform: 'uppercase', marginRight: '0.5rem', fontStyle: 'normal', letterSpacing: '0.5px' }}>Example</strong>
+                      "She showed great resilience in the face of adversity."
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <button className="btn btn-outline btn-sm" style={{ width: '100%' }} onClick={() => setSection('word-management')}>
+                <Plus size={16} /> Update Word
+              </button>
             </div>
-            <div className="status-item">
-              <span style={{ fontWeight: 600, color: '#475569' }}>User Verification</span>
-              <span className="badge badge-positive">All Verified</span>
-            </div>
-            <div className="action-buttons">
-              <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => setSection('word-management')}>
+          ) : (
+            <div className="empty-state" style={{ padding: '2rem 0' }}>
+              <div className="empty-state-icon"><CalendarDays size={32} /></div>
+              <h3>No Word Published</h3>
+              <p>Post a new word for your students today.</p>
+              <button className="btn btn-primary" onClick={() => setSection('word-management')}>
                 <Plus size={18} /> Post Word
               </button>
-              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setSection('users')}>
-                <Users size={18} /> Manage Users
-              </button>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </motion.div>
@@ -284,20 +322,43 @@ const WordManagement = ({ showToast }) => {
         )}
       </AnimatePresence>
 
-      <div className="card">
-        <div className="card-header">
-          <div className="card-title-group">
-            <h2>Compose Daily Word</h2>
-            <p>Define the learning content for English learners today.</p>
+      <form className="admin-form" onSubmit={handleSubmit}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', backgroundColor: 'white', padding: '0.5rem 0.5rem 0.5rem 1rem', borderRadius: '50px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b', marginRight: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Scheduled For</span>
+            <div style={{ position: 'relative' }}>
+              <CalendarDays size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', pointerEvents: 'none' }} />
+              <input
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                required
+                style={{
+                  padding: '0.5rem 1rem 0.5rem 2.2rem',
+                  borderRadius: '30px',
+                  border: 'none',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  backgroundColor: '#f1f5f9',
+                  color: '#334155',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              />
+            </div>
           </div>
         </div>
-        <form className="admin-form" onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Date for Word</label>
-              <input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} required />
+
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title-group">
+              <h2>Compose Daily Word</h2>
+              <p>Define the learning content for English learners today.</p>
             </div>
-            <div className="form-group">
+          </div>
+
+          <div className="form-grid">
+            <div className="form-group full-width">
               <label>English Word</label>
               <input type="text" placeholder="e.g. Resilience" required value={formData.englishWord} onChange={(e) => setFormData({ ...formData, englishWord: e.target.value })} />
             </div>
@@ -312,7 +373,7 @@ const WordManagement = ({ showToast }) => {
 
             <div className="form-divider" />
 
-            <div className="form-group">
+            <div className="form-group full-width">
               <label>Tamil Translation</label>
               <input type="text" placeholder="e.g. மீண்டெழும் திறன்" required value={formData.tamilWord} onChange={(e) => setFormData({ ...formData, tamilWord: e.target.value })} />
             </div>
@@ -325,25 +386,25 @@ const WordManagement = ({ showToast }) => {
               <textarea rows="2" placeholder="தோல்விக்குப் பிறகும் அவர் மீண்டெழும் திறனைக் காட்டினார்." required value={formData.tamilExample} onChange={(e) => setFormData({ ...formData, tamilExample: e.target.value })} />
             </div>
           </div>
-          <div className="form-actions" style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem' }}>
-            <button type="submit" className="btn btn-primary">
-              <Send size={18} /> Publish Content
-            </button>
-            <button type="reset" className="btn btn-outline" onClick={() => setFormData({
+          <div className="form-actions" style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem' }}>
+            <button type="button" className="btn-icon" onClick={() => setFormData({
               ...formData,
               englishWord: '', englishMeaning: '', englishExample: '',
               tamilWord: '', tamilMeaning: '', tamilExample: ''
-            })}>
-              Reset Form
+            })} title="Reset Form">
+              <RefreshCcw size={20} />
+            </button>
+            <button type="submit" className="btn btn-primary">
+              <Send size={18} /> Publish Content
             </button>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </motion.div>
   );
 };
 
-const Submissions = ({ submissions }) => {
+const Submissions = ({ submissions, users }) => {
   const [search, setSearch] = useState('');
 
   const filteredSubs = useMemo(() => {
@@ -353,10 +414,21 @@ const Submissions = ({ submissions }) => {
     );
   }, [submissions, search]);
 
+  const getUserEmail = (userId) => {
+    const user = users.find(u => u.id === userId);
+    return user ? user.email : 'Unknown';
+  };
+
+  const getPoints = () => {
+    // Return a random point value as requested (1, 5, or 10)
+    const points = [1, 5, 10];
+    return points[Math.floor(Math.random() * points.length)];
+  };
+
   return (
     <motion.div {...pageTransition}>
-      <div className="card">
-        <div className="search-container">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+        <div className="search-container" style={{ margin: 0, width: '300px' }}>
           <Search className="search-icon" size={20} />
           <input
             type="text"
@@ -366,37 +438,41 @@ const Submissions = ({ submissions }) => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+      </div>
 
-        <div className="table-container">
-          <table className="data-table">
-            <thead>
+      <div className="table-container">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Email</th>
+              <th>Submitted Sentence</th>
+              <th>Points</th>
+              <th style={{ textAlign: 'right' }}>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredSubs.length > 0 ? filteredSubs.map((sub) => (
+              <motion.tr key={sub.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <td><strong>{sub.userName}</strong></td>
+                <td style={{ color: '#64748b' }}>{getUserEmail(sub.userId)}</td>
+                <td>"{sub.sentence}"</td>
+                <td><span className="badge badge-positive">{getPoints()} pts</span></td>
+                <td style={{ textAlign: 'right', color: '#94a3b8', fontSize: '0.8rem' }}>{sub.time}</td>
+              </motion.tr>
+            )) : (
               <tr>
-                <th>User Name</th>
-                <th>Submitted Sentence</th>
-                <th style={{ textAlign: 'right' }}>Time</th>
+                <td colSpan="5">
+                  <div className="empty-state">
+                    <div className="empty-state-icon"><X size={32} /></div>
+                    <h3>No submissions found</h3>
+                    <p>Try adjusting your search criteria.</p>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredSubs.length > 0 ? filteredSubs.map((sub) => (
-                <motion.tr key={sub.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <td><strong>{sub.userName}</strong></td>
-                  <td>"{sub.sentence}"</td>
-                  <td style={{ textAlign: 'right', color: '#94a3b8', fontSize: '0.8rem' }}>{sub.time}</td>
-                </motion.tr>
-              )) : (
-                <tr>
-                  <td colSpan="3">
-                    <div className="empty-state">
-                      <div className="empty-state-icon"><X size={32} /></div>
-                      <h3>No submissions found</h3>
-                      <p>Try adjusting your search criteria.</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            )}
+          </tbody>
+        </table>
       </div>
     </motion.div>
   );
@@ -414,8 +490,8 @@ const UserManagement = ({ users, toggleStatus, deleteSub, showConfirm }) => {
 
   return (
     <motion.div {...pageTransition}>
-      <div className="card">
-        <div className="search-container">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+        <div className="search-container" style={{ margin: 0, width: '300px' }}>
           <Search className="search-icon" size={20} />
           <input
             type="text"
@@ -425,77 +501,76 @@ const UserManagement = ({ users, toggleStatus, deleteSub, showConfirm }) => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+      </div>
 
-        <div className="table-container">
-          <table className="data-table">
-            <thead>
+      <div className="table-container">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Weekly Score</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.length > 0 ? filteredUsers.map((user) => (
+              <motion.tr key={user.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <td>
+                  <div className="user-cell">
+                    <span style={{ fontWeight: 600 }}>{user.name}</span>
+                  </div>
+                </td>
+                <td style={{ color: '#64748b' }}>{user.email}</td>
+                <td><strong>{user.score} pts</strong></td>
+                <td>
+                  <span className={`badge ${user.status === 'Active' ? 'badge-positive' : 'badge-negative'}`}>
+                    {user.status}
+                  </span>
+                </td>
+                <td>
+                  <div className="table-actions" style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      className="btn-icon"
+                      style={{ color: user.status === 'Active' ? 'var(--danger)' : 'var(--success)', borderColor: 'transparent', background: 'transparent', width: 'auto', height: 'auto', padding: '0.5rem' }}
+                      title={user.status === 'Active' ? 'Ban User' : 'Unban User'}
+                      onClick={() => showConfirm(
+                        user.status === 'Active' ? 'Ban User Account' : 'Unban User Account',
+                        `This will ${user.status === 'Active' ? 'restrict' : 'restore'} access for ${user.name}. Are you sure?`,
+                        () => toggleStatus(user.id)
+                      )}
+                    >
+                      {user.status === 'Active' ? <Ban size={18} /> : <CheckCircle size={18} />}
+                    </button>
+                    <button
+                      className="btn-icon"
+                      style={{ color: 'var(--danger)', borderColor: 'transparent', background: 'transparent', width: 'auto', height: 'auto', padding: '0.5rem' }}
+                      title="Delete most recent submission"
+                      onClick={() => showConfirm(
+                        'Delete Recent Record',
+                        `Permanently delete the last sentence submitted by ${user.name}? This cannot be undone.`,
+                        () => deleteSub(user.id)
+                      )}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </td>
+              </motion.tr>
+            )) : (
               <tr>
-                <th>User Info</th>
-                <th>Weekly Score</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <td colSpan="5">
+                  <div className="empty-state">
+                    <div className="empty-state-icon"><Users size={32} /></div>
+                    <h3>No users found</h3>
+                    <p>Try refining your search.</p>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.length > 0 ? filteredUsers.map((user) => (
-                <motion.tr key={user.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <td>
-                    <div className="user-cell">
-                      <div className="user-avatar">{user.name.charAt(0)}</div>
-                      <div className="user-details">
-                        <span className="user-name">{user.name}</span>
-                        <span className="user-email">{user.email}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td><strong>{user.score} pts</strong></td>
-                  <td>
-                    <span className={`badge ${user.status === 'Active' ? 'badge-positive' : 'badge-negative'}`}>
-                      {user.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="table-actions">
-                      <button
-                        className={`btn btn-sm ${user.status === 'Active' ? 'btn-outline' : 'btn-primary'}`}
-                        style={{ minWidth: '94px' }}
-                        title={user.status === 'Active' ? 'Restrict account access' : 'Restore account access'}
-                        onClick={() => showConfirm(
-                          user.status === 'Active' ? 'Ban User Account' : 'Unban User Account',
-                          `This will ${user.status === 'Active' ? 'restrict' : 'restore'} access for ${user.name}. Are you sure?`,
-                          () => toggleStatus(user.id)
-                        )}
-                      >
-                        {user.status === 'Active' ? <><Ban size={14} /> Ban User</> : 'Unban'}
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger-outline"
-                        title="Delete most recent submission"
-                        onClick={() => showConfirm(
-                          'Delete Recent Record',
-                          `Permanently delete the last sentence submitted by ${user.name}? This cannot be undone.`,
-                          () => deleteSub(user.id)
-                        )}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              )) : (
-                <tr>
-                  <td colSpan="4">
-                    <div className="empty-state">
-                      <div className="empty-state-icon"><Users size={32} /></div>
-                      <h3>No users found</h3>
-                      <p>Try refining your search.</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            )}
+          </tbody>
+        </table>
       </div>
     </motion.div>
   );
@@ -509,8 +584,12 @@ const ScoreMonitoring = ({ users, resetScores, showConfirm }) => {
   return (
     <motion.div {...pageTransition}>
       <div className="scores-header">
-        <button className="btn btn-danger" onClick={() => showConfirm('Reset All Weekly Scores', 'This will set the weekly progress to zero for all users. Continue?', resetScores)}>
-          <RefreshCcw size={18} /> Reset Weekly Cycle
+        <button
+          className="btn btn-danger-outline"
+          onClick={() => showConfirm('Reset All Weekly Scores', 'This will set the weekly progress to zero for all users. Continue?', resetScores)}
+          style={{ padding: '0.75rem 1.25rem', gap: '0.5rem', borderRadius: '50px' }}
+        >
+          <RefreshCcw size={16} /> Reset Cycle
         </button>
       </div>
 
@@ -525,12 +604,15 @@ const ScoreMonitoring = ({ users, resetScores, showConfirm }) => {
           </div>
           <div className="status-list">
             {sorted.slice(0, 3).map((u, i) => (
-              <div className="status-item" key={u.id} style={{ padding: '1rem', background: i === 0 ? 'var(--primary-light)' : '#f8fafc', borderRadius: '12px', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span style={{ fontWeight: 800, fontSize: '1.25rem', color: i === 0 ? 'var(--primary)' : '#64748b' }}>{i + 1}</span>
-                  <strong>{u.name}</strong>
+              <div className="status-item" key={u.id} style={{ padding: '1.25rem', background: i === 0 ? 'var(--primary-light)' : 'transparent', borderRadius: '16px', marginBottom: '0.5rem', border: i === 0 ? '1px solid var(--primary)' : '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                  <div style={{ width: '32px', height: '32px', background: i === 0 ? 'var(--primary)' : '#cbd5e1', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>{i + 1}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <strong style={{ fontSize: '1.1rem' }}>{u.name}</strong>
+                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{Math.floor(u.score / 10)} submissions</span>
+                  </div>
                 </div>
-                <strong>{u.score} pts</strong>
+                <strong style={{ fontSize: '1.25rem', color: i === 0 ? 'var(--primary)' : 'var(--text-main)' }}>{u.score} pts</strong>
               </div>
             ))}
           </div>
@@ -546,14 +628,13 @@ const ScoreMonitoring = ({ users, resetScores, showConfirm }) => {
           <div className="chart-mockup">
             {ACTIVITY_DATA.map((val, i) => (
               <div key={i} className="bar-wrapper">
+                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1e293b', marginBottom: '8px' }}>{val}</div>
                 <motion.div
                   className="bar"
                   initial={{ height: 0 }}
                   animate={{ height: `${(val / maxActivity) * 100}%` }}
-                >
-                  <div style={{ position: 'absolute', top: '-25px', width: '100%', textAlign: 'center', fontSize: '0.7rem', fontWeight: 800 }}>{val}</div>
-                </motion.div>
-                <div className="bar-label">{days[i]}</div>
+                />
+                <div className="bar-label" style={{ marginTop: '12px' }}>{days[i]}</div>
               </div>
             ))}
           </div>
@@ -647,6 +728,15 @@ const App = () => {
   const [toast, setToast] = useState(null);
   const [modal, setModal] = useState({ show: false, title: '', message: '', onConfirm: null });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState('light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   const showToast = (msg) => {
     setToast(msg);
@@ -700,6 +790,8 @@ const App = () => {
         <Header
           title={sectionTitles[currentSection]}
           toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          theme={theme}
+          toggleTheme={toggleTheme}
         />
 
         <div className="content-area">
@@ -707,7 +799,7 @@ const App = () => {
             <motion.div key={currentSection}>
               {currentSection === 'dashboard' && <Dashboard users={users} submissions={submissions} setSection={setSection} />}
               {currentSection === 'word-management' && <WordManagement showToast={showToast} />}
-              {currentSection === 'submissions' && <Submissions submissions={submissions} />}
+              {currentSection === 'submissions' && <Submissions submissions={submissions} users={users} />}
               {currentSection === 'users' && <UserManagement users={users} toggleStatus={toggleUserStatus} deleteSub={deleteSub} showConfirm={showConfirm} />}
               {currentSection === 'scores' && <ScoreMonitoring users={users} resetScores={resetScores} showConfirm={showConfirm} />}
             </motion.div>
