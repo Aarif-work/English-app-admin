@@ -6,7 +6,6 @@ import {
   Users,
   Tally5,
   Languages,
-  Bell,
   Plus,
   Eye,
   Send,
@@ -23,9 +22,9 @@ import {
   ArrowUpRight,
   TrendingUp,
   Clock,
-  Moon,
-  Sun,
-  Download
+  Download,
+  BookOpen,
+  Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -39,10 +38,10 @@ const INITIAL_USERS = [
 ];
 
 const INITIAL_SUBMISSIONS = [
-  { id: 101, userId: 1, userName: 'Anish Kumar', sentence: 'The ocean is vast and mysterious.', date: '2026-02-10', time: '10:30 AM' },
-  { id: 102, userId: 2, userName: 'Priya Dharshini', sentence: 'She like to play piano every day.', date: '2026-02-10', time: '11:15 AM' },
-  { id: 103, userId: 4, userName: 'Sowmya G', sentence: 'Resilience is key to success in any field.', date: '2026-02-09', time: '09:00 PM' },
-  { id: 104, userId: 5, userName: 'Karthik S', sentence: 'I am reading a book now.', date: '2026-02-09', time: '04:45 PM' }
+  { id: 101, userId: 1, userName: 'Anish Kumar', sentence: 'Resilience is key to success.', time: '10:30 AM', date: new Date().toISOString().split('T')[0] },
+  { id: 102, userId: 4, userName: 'Sowmya G', sentence: 'She showed remarkable resilience.', time: '11:15 AM', date: new Date().toISOString().split('T')[0] },
+  { id: 103, userId: 2, userName: 'Priya Dharshini', sentence: 'Building resilience takes time.', time: '01:45 PM', date: new Date().toISOString().split('T')[0] },
+  { id: 104, userId: 5, userName: 'Karthik S', sentence: 'Resilience helps in tough times.', time: 'Yesterday', date: '2023-10-26' }
 ];
 
 const ACTIVITY_DATA = [12, 18, 15, 25, 20, 30, 22];
@@ -65,33 +64,21 @@ const cardHover = {
 const Sidebar = ({ currentSection, setSection, isOpen, setIsOpen }) => {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'word-management', label: 'Word of the Day', icon: CalendarDays },
-    { id: 'submissions', label: 'Submissions', icon: ClipboardCheck },
+    { id: 'word-management', label: 'Publishing Studio', icon: BookOpen },
+    { id: 'submissions', label: 'Activity Streams', icon: Activity },
     { id: 'users', label: 'User Management', icon: Users },
-    { id: 'scores', label: 'Score Monitoring', icon: Tally5 },
+    { id: 'scores', label: 'Score Monitoring', icon: TrendingUp }
   ];
 
   return (
     <>
       {/* Mobile Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            className="modal-overlay"
-            style={{ zIndex: 90 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+      <div className={`sidebar-overlay ${isOpen ? 'open' : ''}`} onClick={() => setIsOpen(false)} />
 
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="logo">
-            <Languages size={28} strokeWidth={2.5} />
-            <span>WordAdmin</span>
+            <span style={{ fontSize: '1.5rem' }}>One Word Wonder</span>
           </div>
         </div>
         <nav className="sidebar-nav">
@@ -120,11 +107,12 @@ const Sidebar = ({ currentSection, setSection, isOpen, setIsOpen }) => {
           </div>
         </div>
       </aside>
+
     </>
   );
 };
 
-const Header = ({ title, toggleSidebar, theme, toggleTheme }) => {
+const Header = ({ title, toggleSidebar }) => {
   const [date, setDate] = useState(new Date());
 
   useEffect(() => {
@@ -144,12 +132,7 @@ const Header = ({ title, toggleSidebar, theme, toggleTheme }) => {
         <div className="date-display">
           {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </div>
-        <motion.button className="btn-icon" onClick={toggleTheme} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-          {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-        </motion.button>
-        <motion.button className="btn-icon" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-          <Bell size={20} />
-        </motion.button>
+
       </div>
     </header>
   );
@@ -721,22 +704,84 @@ const Modal = ({ show, title, message, onConfirm, onCancel }) => {
   );
 };
 
+const Login = ({ onLogin }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onLogin();
+  };
+
+  return (
+    <div className="login-bg">
+      {/* Decorative Shapes mimicking the 3D fluid design */}
+      <div className="login-shape" style={{ width: '300px', height: '300px', top: '10%', left: '10%', borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%', background: 'linear-gradient(45deg, rgba(59, 130, 246, 0.5), rgba(147, 197, 253, 0.1))' }} />
+      <div className="login-shape" style={{ width: '200px', height: '200px', bottom: '15%', right: '15%', borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', background: 'linear-gradient(45deg, rgba(37, 99, 235, 0.5), rgba(96, 165, 250, 0.1))' }} />
+      <div className="login-shape" style={{ width: '150px', height: '150px', top: '20%', right: '25%', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(5px)' }} />
+
+      <motion.div
+        className="login-card"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <div style={{ width: '70px', height: '70px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', color: 'white', border: '1px solid rgba(255, 255, 255, 0.3)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)' }}>
+            <BookOpen size={36} />
+          </div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'white', marginBottom: '0.5rem', letterSpacing: '-0.02em', textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>Welcome Back</h2>
+          <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.95rem' }}>Sign in to One Word Wonder Admin</p>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label className="login-label">Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="admin@oneword.com"
+              className="login-input"
+            />
+          </div>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label className="login-label">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              className="login-input"
+            />
+          </div>
+
+          {error && <p style={{ color: '#fecaca', fontSize: '0.9rem', textAlign: 'center', padding: '0.75rem', background: 'rgba(239, 68, 68, 0.2)', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>{error}</p>}
+
+          <button type="submit" className="login-btn">
+            Sign In
+          </button>
+        </form>
+
+        <div style={{ textAlign: 'center', marginTop: '2.5rem', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.6)' }}>
+          <p>Protected by Admin Security</p>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentSection, setSection] = useState('dashboard');
   const [users, setUsers] = useState(INITIAL_USERS);
   const [submissions, setSubmissions] = useState(INITIAL_SUBMISSIONS);
   const [toast, setToast] = useState(null);
   const [modal, setModal] = useState({ show: false, title: '', message: '', onConfirm: null });
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [theme, setTheme] = useState('light');
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
 
   const showToast = (msg) => {
     setToast(msg);
@@ -777,6 +822,29 @@ const App = () => {
     scores: 'Performance Analytics'
   };
 
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Login onLogin={() => setIsAuthenticated(true)} />
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              className="toast-container"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <div className="toast toast-success">
+                <CheckCircle size={18} color="var(--success)" />
+                {toast}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </>
+    );
+  }
+
   return (
     <div className="app-container">
       <Sidebar
@@ -790,8 +858,6 @@ const App = () => {
         <Header
           title={sectionTitles[currentSection]}
           toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          theme={theme}
-          toggleTheme={toggleTheme}
         />
 
         <div className="content-area">
