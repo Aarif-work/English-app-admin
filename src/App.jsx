@@ -24,7 +24,9 @@ import {
   Clock,
   Download,
   BookOpen,
-  Activity
+  Activity,
+  User,
+  Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -707,69 +709,136 @@ const Modal = ({ show, title, message, onConfirm, onCancel }) => {
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin();
+    setIsLoading(true);
+
+    // Simulate professional auth delay
+    setTimeout(() => {
+      if (email === 'admin@oneword.com' && password === 'admin123') {
+        onLogin();
+      } else {
+        setError('Invalid credentials. Please use admin@oneword.com / admin123');
+        setIsLoading(false);
+      }
+    }, 800);
   };
 
   return (
-    <div className="login-bg">
-      {/* Decorative Shapes mimicking the 3D fluid design */}
-      <div className="login-shape" style={{ width: '300px', height: '300px', top: '10%', left: '10%', borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%', background: 'linear-gradient(45deg, rgba(59, 130, 246, 0.5), rgba(147, 197, 253, 0.1))' }} />
-      <div className="login-shape" style={{ width: '200px', height: '200px', bottom: '15%', right: '15%', borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', background: 'linear-gradient(45deg, rgba(37, 99, 235, 0.5), rgba(96, 165, 250, 0.1))' }} />
-      <div className="login-shape" style={{ width: '150px', height: '150px', top: '20%', right: '25%', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(5px)' }} />
-
-      <motion.div
-        className="login-card"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ width: '70px', height: '70px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', color: 'white', border: '1px solid rgba(255, 255, 255, 0.3)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)' }}>
-            <BookOpen size={36} />
-          </div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'white', marginBottom: '0.5rem', letterSpacing: '-0.02em', textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>Welcome Back</h2>
-          <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.95rem' }}>Sign in to One Word Wonder Admin</p>
-        </div>
-
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div className="form-group" style={{ margin: 0 }}>
-            <label className="login-label">Email Address</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="admin@oneword.com"
-              className="login-input"
-            />
-          </div>
-          <div className="form-group" style={{ margin: 0 }}>
-            <label className="login-label">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-              className="login-input"
-            />
+    <div className="login-wrapper">
+      <div className="login-panel-left">
+        <div className="hero-gradient-overlay" />
+        <motion.div
+          className="hero-content"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <div className="hero-brand">
+            <div className="brand-icon">
+              <BookOpen size={28} />
+            </div>
+            <span>One Word Wonder</span>
           </div>
 
-          {error && <p style={{ color: '#fecaca', fontSize: '0.9rem', textAlign: 'center', padding: '0.75rem', background: 'rgba(239, 68, 68, 0.2)', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>{error}</p>}
+          <h1 className="hero-heading">
+            Revolutionize <br />
+            <span>Daily Learning.</span>
+          </h1>
+          <p className="hero-description">
+            Managing excellence, one word at a time. Your professional suite for overseeing the One Word Wonder ecosystem.
+          </p>
 
-          <button type="submit" className="login-btn">
-            Sign In
-          </button>
-        </form>
 
-        <div style={{ textAlign: 'center', marginTop: '2.5rem', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.6)' }}>
-          <p>Protected by Admin Security</p>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
+
+      <div className="login-panel-right">
+        <motion.div
+          className="login-form-box"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <div className="form-head">
+            <h2>Welcome Back</h2>
+            <p>Please enter your administrative credentials</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="premium-form">
+            <div className="input-group">
+              <label>Administrative Email</label>
+              <div className="input-wrapper">
+                <User size={20} className="input-icon" />
+                <input
+                  type="email"
+                  placeholder="admin@oneword.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label>Secure Password</label>
+              <div className="input-wrapper">
+                <Lock size={20} className="input-icon" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="pwd-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
+
+
+
+            {error && (
+              <motion.div
+                className="login-error-alert"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+              >
+                <X size={16} />
+                <span>{error}</span>
+              </motion.div>
+            )}
+
+            <button
+              type="submit"
+              className={`primary-login-btn ${isLoading ? 'loading' : ''}`}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="loader-dots">
+                  <span></span><span></span><span></span>
+                </div>
+              ) : (
+                <>
+                  <span>Sign in to Dashboard</span>
+                  <ArrowUpRight size={18} />
+                </>
+              )}
+            </button>
+          </form>
+
+
+        </motion.div>
+      </div>
     </div>
   );
 };
