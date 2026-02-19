@@ -80,7 +80,7 @@ const Sidebar = ({ currentSection, setSection, isOpen, setIsOpen }) => {
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="logo">
-            <span style={{ fontSize: '1.5rem' }}>One Word Wonder</span>
+            <span>One Word Wonder</span>
           </div>
         </div>
         <nav className="sidebar-nav">
@@ -132,7 +132,7 @@ const Header = ({ title, toggleSidebar }) => {
       </div>
       <div className="top-bar-actions">
         <div className="date-display">
-          {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
         </div>
 
       </div>
@@ -146,124 +146,191 @@ const Dashboard = ({ users, submissions, setSection }) => {
   const totalScore = users.reduce((acc, u) => acc + u.score, 0);
   const avgScore = users.length ? Math.round(totalScore / users.length) : 0;
 
-  // Mock word for today - effectively assuming one is posted for this demo
-  const todaysWord = "Resilience";
+  // Mock words for today
+  const challenges = [
+    {
+      word: "Ambition",
+      difficulty: "Easy",
+      phonetic: "/amˈbiSH(ə)n/",
+      tamil: "இலட்சியம்",
+      meaning: "A strong desire to do or to achieve something, typically requiring determination and hard work.",
+      example: "Her ambition was to become a successful architect."
+    },
+    {
+      word: "Resilience",
+      difficulty: "Hard",
+      phonetic: "/rəˈzilyəns/",
+      tamil: "மீண்டெழும் திறன்",
+      meaning: "The capacity to withstand or to recover quickly from difficulties.",
+      example: "She showed great resilience in the face of adversity."
+    }
+  ];
+
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      const nextMidnight = new Date(now);
+      nextMidnight.setHours(24, 0, 0, 0);
+      const diff = nextMidnight - now;
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
-    <motion.div {...pageTransition}>
-      <div className="stats-grid">
-        <motion.div className="stat-card" {...cardHover}>
-          <div className="stat-icon users"><Users size={24} /></div>
-          <div className="stat-details">
-            <span className="stat-label">Total Users</span>
-            <h3>{users.length}</h3>
-          </div>
-        </motion.div>
-        <motion.div className="stat-card" {...cardHover}>
-          <div className="stat-icon submissions"><Send size={24} /></div>
-          <div className="stat-details">
-            <span className="stat-label">Sentences Today</span>
-            <h3>{submissionsToday.length}</h3>
-          </div>
-        </motion.div>
-        <motion.div className="stat-card" {...cardHover}>
-          <div className="stat-icon info"><Award size={24} /></div>
-          <div className="stat-details">
-            <span className="stat-label">Avg Weekly Score</span>
-            <h3>{avgScore}</h3>
-          </div>
-        </motion.div>
-      </div>
-
-      <div className="dashboard-secondary-grid">
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title-group">
-              <h2>Recent Submissions</h2>
-              <p>Updates from the last 24 hours</p>
-            </div>
-            <button className="btn btn-outline btn-sm" onClick={() => setSection('submissions')}>View All</button>
-          </div>
-          <div className="status-list">
-            {submissions.slice(0, 3).map(sub => (
-              <div key={sub.id} className="status-item">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div className="user-avatar" style={{ width: '40px', height: '40px', fontSize: '14px', background: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#64748b' }}>{sub.userName.charAt(0)}</div>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ fontSize: '1rem', fontWeight: 600 }}>{sub.userName}</div>
-                    <div style={{ fontSize: '0.875rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{sub.sentence}</div>
-                  </div>
-                </div>
-                <div style={{ fontSize: '0.875rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}>
-                  <Clock size={14} /> {sub.time}
-                </div>
-              </div>
-            ))}
-          </div>
+    <motion.div {...pageTransition} className="dashboard-v2">
+      <div className="dashboard-header-bar">
+        <div className="card-title-group">
+          <h2 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>Overview Dashboard</h2>
+          <p style={{ margin: 0 }}>System performance and top user rankings</p>
         </div>
-
-        <div className="card" style={{ padding: '2rem' }}>
-          <div className="card-header" style={{ marginBottom: '1rem' }}>
-            <div className="card-title-group">
-              <h2>Today's Word</h2>
-            </div>
-            {todaysWord ? <span className="badge badge-positive">Published</span> : <span className="badge badge-negative">Pending</span>}
-          </div>
-
-          {todaysWord ? (
-            <div className="todays-word-display" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ padding: '1.25rem', background: 'linear-gradient(135deg, var(--bg-card), var(--primary-light))', borderRadius: '16px', border: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', background: 'radial-gradient(circle, var(--primary) 0%, transparent 70%)', opacity: 0.05, borderRadius: '50%' }}></div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary)', lineHeight: 1.1, marginBottom: '0.25rem' }}>Resilience</h3>
-                    <span style={{ fontSize: '0.9rem', color: '#64748b', fontStyle: 'italic' }}>/rəˈzilyəns/</span>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#475569', display: 'block' }}>மீண்டெழும் திறன்</span>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.6)', padding: '0.75rem', borderRadius: '10px', backdropFilter: 'blur(4px)' }}>
-                    <p style={{ fontSize: '0.9rem', lineHeight: '1.5', color: '#334155', margin: 0 }}>
-                      <strong style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', marginRight: '0.5rem', letterSpacing: '0.5px' }}>Meaning</strong>
-                      The capacity to withstand or to recover quickly from difficulties.
-                    </p>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.6)', padding: '0.75rem', borderRadius: '10px', backdropFilter: 'blur(4px)' }}>
-                    <p style={{ fontSize: '0.9rem', lineHeight: '1.5', color: '#334155', fontStyle: 'italic', margin: 0 }}>
-                      <strong style={{ color: '#10b981', fontSize: '0.75rem', textTransform: 'uppercase', marginRight: '0.5rem', fontStyle: 'normal', letterSpacing: '0.5px' }}>Example</strong>
-                      "She showed great resilience in the face of adversity."
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <button className="btn btn-outline btn-sm" style={{ width: '100%' }} onClick={() => setSection('word-management')}>
-                <Plus size={16} /> Update Word
-              </button>
-            </div>
-          ) : (
-            <div className="empty-state" style={{ padding: '2rem 0' }}>
-              <div className="empty-state-icon"><CalendarDays size={32} /></div>
-              <h3>No Word Published</h3>
-              <p>Post a new word for your students today.</p>
-              <button className="btn btn-primary" onClick={() => setSection('word-management')}>
-                <Plus size={18} /> Post Word
-              </button>
-            </div>
-          )}
+        <div className="main-header-reset">
+          <Clock size={16} /> <span>Reset: {timeLeft}</span>
         </div>
       </div>
-    </motion.div>
+
+      <div className="dashboard-main-grid">
+        <div className="dashboard-left-column">
+          <div className="card stats-master-card">
+            <div className="card-header">
+              <div className="card-title-group">
+                <h2>Performance Metrics</h2>
+                <p>Key indicators</p>
+              </div>
+            </div>
+            <div className="stats-vertical-list">
+              <div className="stats-v-item">
+                <div className="stat-icon-mini users"><Users size={18} /></div>
+                <div className="stat-v-info">
+                  <span className="stat-v-label">Total Users</span>
+                  <span className="stat-v-value">{users.length}</span>
+                </div>
+              </div>
+              <div className="stats-v-item">
+                <div className="stat-icon-mini submissions"><Send size={18} /></div>
+                <div className="stat-v-info">
+                  <span className="stat-v-label">Sentences Today</span>
+                  <span className="stat-v-value">{submissionsToday.length}</span>
+                </div>
+              </div>
+              <div className="stats-v-item">
+                <div className="stat-icon-mini info"><Award size={18} /></div>
+                <div className="stat-v-info">
+                  <span className="stat-v-label">Avg Weekly Score</span>
+                  <span className="stat-v-value">{avgScore}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Top 3 Scores */}
+          <div className="card activity-card">
+            <div className="card-header">
+              <div className="card-title-group">
+                <h2>Top Performers</h2>
+                <p>Users with the highest scores</p>
+              </div>
+              <button className="btn btn-outline btn-sm" onClick={() => setSection('users')}>All Rankings</button>
+            </div>
+            <div className="top-users-list" style={{ marginTop: '1rem' }}>
+              {users.slice()
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 3)
+                .map((u, index) => (
+                  <div key={index} className="top-user-item">
+                    <div className="rank-and-user" style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                      <div className={`user-rank-box rank-${index + 1}`}>#{index + 1}</div>
+                      <div className="top-user-info">
+                        <div className="user-avatar" style={{ margin: 0 }}>{u.name.charAt(0)}</div>
+                        <div className="user-details-mini" style={{ marginLeft: '0.75rem' }}>
+                          <div className="user-name" style={{ fontWeight: 700, fontSize: '0.9rem' }}>{u.name}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 800 }}>{u.score} pts</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+        <div className="dashboard-right-column">
+          <div className="card word-card-master">
+            <div className="card-header" style={{ marginBottom: '1.5rem' }}>
+              <div className="card-title-group">
+                <h2>Today's Words</h2>
+                <p style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '0.85rem' }}>
+                  {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <span className="badge badge-positive">Active Now</span>
+                <button className="btn btn-icon btn-outline btn-sm" onClick={() => setSection('word-management')} title="View History">
+                  <CalendarDays size={14} />
+                </button>
+              </div>
+            </div>
+
+            <div className="dual-word-container">
+              {challenges.map((challenge, idx) => (
+                <div key={idx} className={`word-display-card mini ${challenge.difficulty.toLowerCase()}`}>
+                  <div className="challenge-mode-label">{challenge.difficulty} Mode</div>
+
+                  <div className="word-header-row">
+                    <div>
+                      <h3 className="word-title">{challenge.word}</h3>
+                      <span className="word-phonetic">{challenge.phonetic}</span>
+                    </div>
+                    <div className="word-tamil-container">
+                      <span className="word-tamil">{challenge.tamil}</span>
+                    </div>
+                  </div>
+
+                  <div className="word-details-column">
+                    <div className="word-info-box">
+                      <p>
+                        <strong className="info-label meaning">Meaning</strong>
+                        {challenge.meaning}
+                      </p>
+                    </div>
+                    <div className="word-info-box">
+                      <p className="example-text">
+                        <strong className="info-label example">Example</strong>
+                        "{challenge.example}"
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+              <button className="btn btn-outline btn-sm" style={{ flex: 1 }} onClick={() => setSection('word-management')}>
+                <CalendarDays size={16} /> History
+              </button>
+              <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => setSection('word-management')}>
+                <Plus size={16} /> New Word
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div >
   );
 };
+
+
 
 const WordManagement = ({ showToast }) => {
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
+    difficulty: 'Easy',
     englishWord: '',
     englishMeaning: '',
     englishExample: '',
@@ -273,14 +340,31 @@ const WordManagement = ({ showToast }) => {
   });
   const [isSaving, setIsSaving] = useState(false);
 
+  // Mock word history
+  const [history, setHistory] = useState([
+    { id: 1, date: '2026-02-18', word: 'Resilience', difficulty: 'Hard', status: 'Past' },
+    { id: 2, date: '2026-02-19', word: 'Ambition', difficulty: 'Easy', status: 'Active' },
+    { id: 3, date: '2026-02-20', word: 'Perseverance', difficulty: 'Hard', status: 'Scheduled' }
+  ]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSaving(true);
     setTimeout(() => {
+      setIsSaving(true); // Keep spinner a bit for effect
+      const newEntry = {
+        id: Date.now(),
+        date: formData.date,
+        word: formData.englishWord,
+        difficulty: formData.difficulty,
+        status: formData.date > new Date().toISOString().split('T')[0] ? 'Scheduled' : 'Active'
+      };
+      setHistory([newEntry, ...history]);
       setIsSaving(false);
-      showToast('Daily word published successfully!');
+      showToast(`${formData.difficulty} mode word published!`);
       setFormData({
         date: new Date().toISOString().split('T')[0],
+        difficulty: 'Easy',
         englishWord: '',
         englishMeaning: '',
         englishExample: '',
@@ -288,7 +372,7 @@ const WordManagement = ({ showToast }) => {
         tamilMeaning: '',
         tamilExample: ''
       });
-    }, 1000);
+    }, 1200);
   };
 
   return (
@@ -302,89 +386,132 @@ const WordManagement = ({ showToast }) => {
             exit={{ opacity: 0 }}
           >
             <div className="spinner"></div>
-            <p style={{ fontWeight: 700, color: 'var(--primary)' }}>Publishing Today's Word...</p>
+            <p style={{ fontWeight: 700, color: 'var(--primary)' }}>Deploying to App Streams...</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <form className="admin-form" onSubmit={handleSubmit}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', backgroundColor: 'white', padding: '0.5rem 0.5rem 0.5rem 1rem', borderRadius: '50px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b', marginRight: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Scheduled For</span>
-            <div style={{ position: 'relative' }}>
-              <CalendarDays size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', pointerEvents: 'none' }} />
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                required
-                style={{
-                  padding: '0.5rem 1rem 0.5rem 2.2rem',
-                  borderRadius: '30px',
-                  border: 'none',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  backgroundColor: '#f1f5f9',
-                  color: '#334155',
-                  outline: 'none',
-                  cursor: 'pointer'
-                }}
-              />
+      <div className="word-mgmt-layout">
+        <form className="admin-form" onSubmit={handleSubmit}>
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title-group">
+                <h2>Publishing Studio</h2>
+                <p>Create daily challenges for learners.</p>
+              </div>
+            </div>
+
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Target Date</label>
+                <div style={{ position: 'relative' }}>
+                  <CalendarDays size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', pointerEvents: 'none' }} />
+                  <input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    required
+                    style={{ paddingLeft: '2.5rem' }}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Difficulty Mode</label>
+                <div className="mode-toggle-group">
+                  <button
+                    type="button"
+                    className={`mode-btn ${formData.difficulty === 'Easy' ? 'active easy' : ''}`}
+                    onClick={() => setFormData({ ...formData, difficulty: 'Easy' })}
+                  >
+                    Easy Mode
+                  </button>
+                  <button
+                    type="button"
+                    className={`mode-btn ${formData.difficulty === 'Hard' ? 'active hard' : ''}`}
+                    onClick={() => setFormData({ ...formData, difficulty: 'Hard' })}
+                  >
+                    Hard Mode
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-divider" />
+
+              <div className="form-group full-width">
+                <label>English Word</label>
+                <input type="text" placeholder="e.g. Resilience" required value={formData.englishWord} onChange={(e) => setFormData({ ...formData, englishWord: e.target.value })} />
+              </div>
+              <div className="form-group full-width">
+                <label>English Meaning</label>
+                <textarea rows="2" placeholder="The capacity to recover quickly from difficulties." required value={formData.englishMeaning} onChange={(e) => setFormData({ ...formData, englishMeaning: e.target.value })} />
+              </div>
+              <div className="form-group full-width">
+                <label>English Example Sentence</label>
+                <textarea rows="2" placeholder="She showed great resilience after the set back." required value={formData.englishExample} onChange={(e) => setFormData({ ...formData, englishExample: e.target.value })} />
+              </div>
+
+              <div className="form-divider" />
+
+              <div className="form-group full-width">
+                <label>Tamil Translation</label>
+                <input type="text" placeholder="e.g. மீண்டெழும் திறன்" required value={formData.tamilWord} onChange={(e) => setFormData({ ...formData, tamilWord: e.target.value })} />
+              </div>
+              <div className="form-group full-width">
+                <label>Tamil Meaning</label>
+                <textarea rows="2" placeholder="சவால்களை எதிர்கொண்டு மீண்டும் பழைய நிலைக்குத் திரும்பும் திறன்." required value={formData.tamilMeaning} onChange={(e) => setFormData({ ...formData, tamilMeaning: e.target.value })} />
+              </div>
+              <div className="form-group full-width">
+                <label>Tamil Example Sentence</label>
+                <textarea rows="2" placeholder="தோல்விக்குப் பிறகும் அவர் மீண்டெழும் திறனைக் காட்டினார்." required value={formData.tamilExample} onChange={(e) => setFormData({ ...formData, tamilExample: e.target.value })} />
+              </div>
+            </div>
+            <div className="form-actions" style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem' }}>
+              <button type="button" className="btn-icon" onClick={() => setFormData({
+                date: new Date().toISOString().split('T')[0],
+                difficulty: 'Easy',
+                englishWord: '', englishMeaning: '', englishExample: '',
+                tamilWord: '', tamilMeaning: '', tamilExample: ''
+              })} title="Reset Form">
+                <RefreshCcw size={20} />
+              </button>
+              <button type="submit" className="btn btn-primary">
+                <Send size={18} /> Publish Word
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div className="history-panel">
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title-group">
+                <h2>Word Timeline</h2>
+                <p>Day-wise publishing history</p>
+              </div>
+            </div>
+
+            <div className="history-list">
+              {history.map(item => (
+                <div key={item.id} className="history-item">
+                  <div className="history-date">
+                    <span className="day">{new Date(item.date).getDate()}</span>
+                    <span className="month">{new Date(item.date).toLocaleDateString('en-US', { month: 'short' })}</span>
+                  </div>
+                  <div className="history-info">
+                    <div className="history-word-row">
+                      <strong>{item.word}</strong>
+                      <span className={`difficulty-badge sm ${item.difficulty.toLowerCase()}`}>{item.difficulty}</span>
+                    </div>
+                    <span className={`status-tag ${item.status.toLowerCase()}`}>{item.status}</span>
+                  </div>
+                  <button className="btn-icon sm"><Eye size={14} /></button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title-group">
-              <h2>Compose Daily Word</h2>
-              <p>Define the learning content for English learners today.</p>
-            </div>
-          </div>
-
-          <div className="form-grid">
-            <div className="form-group full-width">
-              <label>English Word</label>
-              <input type="text" placeholder="e.g. Resilience" required value={formData.englishWord} onChange={(e) => setFormData({ ...formData, englishWord: e.target.value })} />
-            </div>
-            <div className="form-group full-width">
-              <label>English Meaning</label>
-              <textarea rows="2" placeholder="The capacity to recover quickly from difficulties." required value={formData.englishMeaning} onChange={(e) => setFormData({ ...formData, englishMeaning: e.target.value })} />
-            </div>
-            <div className="form-group full-width">
-              <label>English Example Sentence</label>
-              <textarea rows="2" placeholder="She showed great resilience after the set back." required value={formData.englishExample} onChange={(e) => setFormData({ ...formData, englishExample: e.target.value })} />
-            </div>
-
-            <div className="form-divider" />
-
-            <div className="form-group full-width">
-              <label>Tamil Translation</label>
-              <input type="text" placeholder="e.g. மீண்டெழும் திறன்" required value={formData.tamilWord} onChange={(e) => setFormData({ ...formData, tamilWord: e.target.value })} />
-            </div>
-            <div className="form-group full-width">
-              <label>Tamil Meaning</label>
-              <textarea rows="2" placeholder="சவால்களை எதிர்கொண்டு மீண்டும் பழைய நிலைக்குத் திரும்பும் திறன்." required value={formData.tamilMeaning} onChange={(e) => setFormData({ ...formData, tamilMeaning: e.target.value })} />
-            </div>
-            <div className="form-group full-width">
-              <label>Tamil Example Sentence</label>
-              <textarea rows="2" placeholder="தோல்விக்குப் பிறகும் அவர் மீண்டெழும் திறனைக் காட்டினார்." required value={formData.tamilExample} onChange={(e) => setFormData({ ...formData, tamilExample: e.target.value })} />
-            </div>
-          </div>
-          <div className="form-actions" style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem' }}>
-            <button type="button" className="btn-icon" onClick={() => setFormData({
-              ...formData,
-              englishWord: '', englishMeaning: '', englishExample: '',
-              tamilWord: '', tamilMeaning: '', tamilExample: ''
-            })} title="Reset Form">
-              <RefreshCcw size={20} />
-            </button>
-            <button type="submit" className="btn btn-primary">
-              <Send size={18} /> Publish Content
-            </button>
-          </div>
-        </div>
-      </form>
+      </div>
     </motion.div>
   );
 };
@@ -412,8 +539,8 @@ const Submissions = ({ submissions, users }) => {
 
   return (
     <motion.div {...pageTransition}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
-        <div className="search-container" style={{ margin: 0, width: '300px' }}>
+      <div className="search-header">
+        <div className="search-container">
           <Search className="search-icon" size={20} />
           <input
             type="text"
@@ -475,8 +602,8 @@ const UserManagement = ({ users, toggleStatus, deleteSub, showConfirm }) => {
 
   return (
     <motion.div {...pageTransition}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
-        <div className="search-container" style={{ margin: 0, width: '300px' }}>
+      <div className="search-header">
+        <div className="search-container">
           <Search className="search-icon" size={20} />
           <input
             type="text"
@@ -851,6 +978,14 @@ const App = () => {
   const [toast, setToast] = useState(null);
   const [modal, setModal] = useState({ show: false, title: '', message: '', onConfirm: null });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.classList.add('sidebar-active');
+    } else {
+      document.body.classList.remove('sidebar-active');
+    }
+  }, [sidebarOpen]);
 
   const showToast = (msg) => {
     setToast(msg);
