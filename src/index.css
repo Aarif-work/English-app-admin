@@ -2111,7 +2111,7 @@ textarea:focus {
 .dashboard-v2 {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 1rem;
 }
 
 .dashboard-top-section {
@@ -2129,17 +2129,17 @@ textarea:focus {
 .stats-vertical-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin: 1rem 0 0.5rem 0;
+  gap: 1.25rem;
+  margin: 1.25rem 0 0.5rem 0;
 }
 
 .stats-v-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
+  gap: 1.25rem;
+  padding: 1.5rem 1.25rem;
   background: var(--bg-main);
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid var(--border);
   transition: var(--transition);
 }
@@ -2150,9 +2150,9 @@ textarea:focus {
 }
 
 .stat-icon-mini {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2180,13 +2180,15 @@ textarea:focus {
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .stat-v-value {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: var(--text-main);
-  line-height: 1.2;
+  line-height: 1;
 }
 
 .header-reset-timer {
@@ -2218,6 +2220,7 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 }
+
 /* Dashboard Top Header Timer */
 .dashboard-header-bar {
   display: flex;
@@ -2227,7 +2230,7 @@ textarea:focus {
   background: white;
   border-radius: 16px;
   border: 1px solid var(--border);
-  margin-bottom: -1rem;
+  margin-bottom: 0;
 }
 
 .main-header-reset {
@@ -2268,7 +2271,7 @@ textarea:focus {
 .top-user-item:hover {
   transform: translateY(-3px);
   border-color: var(--primary);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
 
 .user-rank-box {
@@ -2282,9 +2285,20 @@ textarea:focus {
   font-size: 0.85rem;
 }
 
-.rank-1 { background: #fef3c7; color: #d97706; }
-.rank-2 { background: #f1f5f9; color: #475569; }
-.rank-3 { background: #ffedd5; color: #9a3412; }
+.rank-1 {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.rank-2 {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.rank-3 {
+  background: #ffedd5;
+  color: #9a3412;
+}
 
 .top-user-info {
   display: flex;
@@ -2304,7 +2318,8 @@ textarea:focus {
 }
 
 /* Height Increase */
-.stats-master-card, .activity-card {
+.stats-master-card,
+.activity-card {
   min-height: 380px;
   display: flex;
   flex-direction: column;
@@ -2316,7 +2331,7 @@ textarea:focus {
   display: grid;
   grid-template-columns: 400px 1fr;
   gap: 2rem;
-  margin-top: 2rem;
+  margin-top: 0;
   align-items: start;
 }
 
@@ -2353,7 +2368,7 @@ textarea:focus {
 
 .word-display-card.mini:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
 .word-display-card.mini .word-title {
@@ -2380,12 +2395,181 @@ textarea:focus {
   font-weight: 700;
 }
 
-.word-display-card.mini.easy { border-top: 5px solid var(--success); }
-.word-display-card.mini.hard { border-top: 5px solid var(--danger); }
+.word-display-card.mini.easy {
+  border-top: 5px solid var(--success);
+}
+
+.word-display-card.mini.hard {
+  border-top: 5px solid var(--danger);
+}
 
 .word-display-card.mini .word-info-box {
   margin-top: 1rem;
   border-radius: 10px;
   border: 1px solid #f1f5f9;
   background: #fafafa;
+}
+
+/* Dashboard Clickable items */
+.stats-v-item,
+.top-user-item {
+  cursor: pointer;
+}
+
+/* Publishing Studio Calendar Styling */
+.calendar-container {
+  width: 100% !important;
+  max-width: 700px !important;
+  /* Expanding to fill available space */
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.calendar-header h2 {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.weekday-label {
+  font-weight: 800;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.calendar-day {
+  height: 50px;
+  /* Reduced height */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 12px;
+  font-weight: 700;
+  color: var(--text-main);
+  transition: all 0.2s ease;
+  position: relative;
+  font-size: 1rem;
+  border: 1px solid transparent;
+  background: #f1f5f9;
+  /* Default Gray Shade */
+}
+
+.calendar-day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.calendar-day.has-data {
+  background: #e0e7ff;
+  /* Blue Shade for data */
+  color: var(--primary);
+}
+
+.calendar-day:hover:not(.empty) {
+  background: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.calendar-day.has-data:hover {
+  background: #c7d2fe;
+}
+
+.calendar-day.selected {
+  background: var(--primary) !important;
+  color: white !important;
+  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+  transform: scale(1.05);
+  z-index: 3;
+}
+
+.calendar-day.today {
+  border: 2px solid var(--primary);
+  font-weight: 900;
+}
+
+.studio-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.summary-table-card {
+  margin-top: 1rem;
+}
+
+/* Detail View Styling */
+.detail-view-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.back-btn {
+  padding: 0.75rem 1.25rem;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: white;
+  border-color: var(--primary);
+  color: var(--primary);
 }

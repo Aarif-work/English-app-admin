@@ -26,9 +26,12 @@ import {
   BookOpen,
   Activity,
   User,
-  Lock
+  Lock,
+  ChevronLeft,
+  ChevronRight,
+  ArrowLeft
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 
 // --- Mock Data ---
 const INITIAL_USERS = [
@@ -59,6 +62,37 @@ const pageTransition = {
 const cardHover = {
   whileHover: { y: -5, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' },
   transition: { type: 'spring', stiffness: 300 }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
+
+const staggerItem = {
+  hidden: { opacity: 0, x: -15 },
+  animate: {
+    opacity: 1,
+    x: 0,
+    transition: { type: "spring", stiffness: 100 }
+  }
+};
+
+const AnimatedCounter = ({ value }) => {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.round(latest));
+
+  useEffect(() => {
+    const controls = animate(count, value, { duration: 1.5, ease: "easeOut" });
+    return controls.stop;
+  }, [value]);
+
+  return <motion.span>{rounded}</motion.span>;
 };
 
 // --- Components ---
@@ -198,37 +232,47 @@ const Dashboard = ({ users, submissions, setSection }) => {
 
       <div className="dashboard-main-grid">
         <div className="dashboard-left-column">
-          <div className="card stats-master-card">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="card stats-master-card"
+          >
             <div className="card-header">
               <div className="card-title-group">
                 <h2>Performance Metrics</h2>
                 <p>Key indicators</p>
               </div>
             </div>
-            <div className="stats-vertical-list">
-              <div className="stats-v-item">
+            <motion.div
+              className="stats-vertical-list"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="animate"
+            >
+              <motion.div className="stats-v-item" variants={staggerItem} onClick={() => setSection('users')}>
                 <div className="stat-icon-mini users"><Users size={18} /></div>
                 <div className="stat-v-info">
                   <span className="stat-v-label">Total Users</span>
-                  <span className="stat-v-value">{users.length}</span>
+                  <span className="stat-v-value"><AnimatedCounter value={users.length} /></span>
                 </div>
-              </div>
-              <div className="stats-v-item">
+              </motion.div>
+              <motion.div className="stats-v-item" variants={staggerItem} onClick={() => setSection('submissions')}>
                 <div className="stat-icon-mini submissions"><Send size={18} /></div>
                 <div className="stat-v-info">
                   <span className="stat-v-label">Sentences Today</span>
-                  <span className="stat-v-value">{submissionsToday.length}</span>
+                  <span className="stat-v-value"><AnimatedCounter value={submissionsToday.length} /></span>
                 </div>
-              </div>
-              <div className="stats-v-item">
+              </motion.div>
+              <motion.div className="stats-v-item" variants={staggerItem} onClick={() => setSection('scores')}>
                 <div className="stat-icon-mini info"><Award size={18} /></div>
                 <div className="stat-v-info">
                   <span className="stat-v-label">Avg Weekly Score</span>
-                  <span className="stat-v-value">{avgScore}</span>
+                  <span className="stat-v-value"><AnimatedCounter value={avgScore} /></span>
                 </div>
-              </div>
-            </div>
-          </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
 
           {/* Right: Top 3 Scores */}
           <div className="card activity-card">
@@ -237,14 +281,16 @@ const Dashboard = ({ users, submissions, setSection }) => {
                 <h2>Top Performers</h2>
                 <p>Users with the highest scores</p>
               </div>
-              <button className="btn btn-outline btn-sm" onClick={() => setSection('users')}>All Rankings</button>
+              <button className="btn btn-icon btn-outline btn-sm" onClick={() => setSection('users')} title="All Rankings">
+                <ArrowUpRight size={16} />
+              </button>
             </div>
             <div className="top-users-list" style={{ marginTop: '1rem' }}>
               {users.slice()
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 3)
                 .map((u, index) => (
-                  <div key={index} className="top-user-item">
+                  <div key={index} className="top-user-item" onClick={() => setSection('users')}>
                     <div className="rank-and-user" style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
                       <div className={`user-rank-box rank-${index + 1}`}>#{index + 1}</div>
                       <div className="top-user-info">
@@ -328,188 +374,196 @@ const Dashboard = ({ users, submissions, setSection }) => {
 
 
 const WordManagement = ({ showToast }) => {
-  const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
-    difficulty: 'Easy',
-    englishWord: '',
-    englishMeaning: '',
-    englishExample: '',
-    tamilWord: '',
-    tamilMeaning: '',
-    tamilExample: ''
+  const [view, setView] = useState('calendar'); // 'calendar' or 'detail'
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // Mock database for words per date
+  const [wordDatabase, setWordDatabase] = useState({
+    '2026-02-18': {
+      easy: { word: 'Happy', meaning: 'Feeling or showing pleasure', tamil: 'மகிழ்ச்சி' },
+      hard: { word: 'Resilience', meaning: 'The capacity to recover quickly', tamil: 'மீண்டெழும் திறன்' }
+    },
+    '2026-02-19': {
+      easy: { word: 'Ambition', meaning: 'Strong desire to achieve', tamil: 'லட்சியம்' },
+      hard: { word: 'Equanimity', meaning: 'Mental calmness', tamil: 'மன அமைதி' }
+    }
   });
-  const [isSaving, setIsSaving] = useState(false);
 
-  // Mock word history
-  const [history, setHistory] = useState([
-    { id: 1, date: '2026-02-18', word: 'Resilience', difficulty: 'Hard', status: 'Past' },
-    { id: 2, date: '2026-02-19', word: 'Ambition', difficulty: 'Easy', status: 'Active' },
-    { id: 3, date: '2026-02-20', word: 'Perseverance', difficulty: 'Hard', status: 'Scheduled' }
-  ]);
+  const [editFormData, setEditFormData] = useState({
+    easy: { word: '', meaning: '', tamil: '' },
+    hard: { word: '', meaning: '', tamil: '' }
+  });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(true); // Keep spinner a bit for effect
-      const newEntry = {
-        id: Date.now(),
-        date: formData.date,
-        word: formData.englishWord,
-        difficulty: formData.difficulty,
-        status: formData.date > new Date().toISOString().split('T')[0] ? 'Scheduled' : 'Active'
-      };
-      setHistory([newEntry, ...history]);
-      setIsSaving(false);
-      showToast(`${formData.difficulty} mode word published!`);
-      setFormData({
-        date: new Date().toISOString().split('T')[0],
-        difficulty: 'Easy',
-        englishWord: '',
-        englishMeaning: '',
-        englishExample: '',
-        tamilWord: '',
-        tamilMeaning: '',
-        tamilExample: ''
-      });
-    }, 1200);
+  // Calendar Logic
+  const daysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
+  const firstDayOfMonth = (month, year) => new Date(year, month, 1).getDay();
+
+  const handlePrevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  const handleNextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+
+  const renderCalendar = () => {
+    const month = currentMonth.getMonth();
+    const year = currentMonth.getFullYear();
+    const totalDays = daysInMonth(month, year);
+    const startDay = firstDayOfMonth(month, year);
+    const days = [];
+
+    for (let i = 0; i < startDay; i++) {
+      days.push(<div key={`empty-${i}`} className="calendar-day empty" />);
+    }
+
+    for (let d = 1; d <= totalDays; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const hasWords = wordDatabase[dateStr];
+      const isToday = new Date().toISOString().split('T')[0] === dateStr;
+
+      days.push(
+        <div
+          key={d}
+          className={`calendar-day ${selectedDate === dateStr ? 'selected' : ''} ${isToday ? 'today' : ''} ${hasWords ? 'has-data' : ''}`}
+          onClick={() => {
+            setSelectedDate(dateStr);
+            handleOpenDay(dateStr);
+          }}
+        >
+          {d}
+        </div>
+      );
+    }
+    return days;
   };
 
-  return (
-    <motion.div {...pageTransition}>
-      <AnimatePresence>
-        {isSaving && (
-          <motion.div
-            className="loading-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div className="spinner"></div>
-            <p style={{ fontWeight: 700, color: 'var(--primary)' }}>Deploying to App Streams...</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+  const handleOpenDay = (dateStr) => {
+    const existing = wordDatabase[dateStr] || {
+      easy: { word: '', meaning: '', tamil: '' },
+      hard: { word: '', meaning: '', tamil: '' }
+    };
+    setEditFormData(existing);
+    setView('detail');
+  };
 
-      <div className="word-mgmt-layout">
-        <form className="admin-form" onSubmit={handleSubmit}>
-          <div className="card">
-            <div className="card-header">
+  const saveDailyWords = () => {
+    setWordDatabase({
+      ...wordDatabase,
+      [selectedDate]: editFormData
+    });
+    showToast(`Pack updated for ${selectedDate}`);
+    setView('calendar');
+  };
+
+  if (view === 'detail') {
+    return (
+      <motion.div {...pageTransition}>
+        <div className="card">
+          <div className="card-header">
+            <div className="detail-view-header">
+              <button className="back-btn" onClick={() => setView('calendar')}>
+                <ArrowLeft size={18} /> Back
+              </button>
               <div className="card-title-group">
-                <h2>Publishing Studio</h2>
-                <p>Create daily challenges for learners.</p>
+                <h2 style={{ fontSize: '1.25rem' }}>{new Date(selectedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</h2>
               </div>
             </div>
+            <button className="btn btn-primary btn-sm" onClick={saveDailyWords}>Save All Changes</button>
+          </div>
 
-            <div className="form-grid">
+          <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+            <div className="mode-edit-section">
+              <h3 style={{ color: 'var(--success)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div style={{ width: '10px', height: '10px', background: 'var(--success)', borderRadius: '50%' }} /> Easy Mode
+              </h3>
               <div className="form-group">
-                <label>Target Date</label>
-                <div style={{ position: 'relative' }}>
-                  <CalendarDays size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', pointerEvents: 'none' }} />
-                  <input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    required
-                    style={{ paddingLeft: '2.5rem' }}
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Difficulty Mode</label>
-                <div className="mode-toggle-group">
-                  <button
-                    type="button"
-                    className={`mode-btn ${formData.difficulty === 'Easy' ? 'active easy' : ''}`}
-                    onClick={() => setFormData({ ...formData, difficulty: 'Easy' })}
-                  >
-                    Easy Mode
-                  </button>
-                  <button
-                    type="button"
-                    className={`mode-btn ${formData.difficulty === 'Hard' ? 'active hard' : ''}`}
-                    onClick={() => setFormData({ ...formData, difficulty: 'Hard' })}
-                  >
-                    Hard Mode
-                  </button>
-                </div>
-              </div>
-
-              <div className="form-divider" />
-
-              <div className="form-group full-width">
                 <label>English Word</label>
-                <input type="text" placeholder="e.g. Resilience" required value={formData.englishWord} onChange={(e) => setFormData({ ...formData, englishWord: e.target.value })} />
+                <input type="text" value={editFormData.easy.word} onChange={(e) => setEditFormData({ ...editFormData, easy: { ...editFormData.easy, word: e.target.value } })} />
               </div>
-              <div className="form-group full-width">
-                <label>English Meaning</label>
-                <textarea rows="2" placeholder="The capacity to recover quickly from difficulties." required value={formData.englishMeaning} onChange={(e) => setFormData({ ...formData, englishMeaning: e.target.value })} />
+              <div className="form-group">
+                <label>Meaning</label>
+                <textarea rows="3" value={editFormData.easy.meaning} onChange={(e) => setEditFormData({ ...editFormData, easy: { ...editFormData.easy, meaning: e.target.value } })} />
               </div>
-              <div className="form-group full-width">
-                <label>English Example Sentence</label>
-                <textarea rows="2" placeholder="She showed great resilience after the set back." required value={formData.englishExample} onChange={(e) => setFormData({ ...formData, englishExample: e.target.value })} />
-              </div>
-
-              <div className="form-divider" />
-
-              <div className="form-group full-width">
+              <div className="form-group">
                 <label>Tamil Translation</label>
-                <input type="text" placeholder="e.g. மீண்டெழும் திறன்" required value={formData.tamilWord} onChange={(e) => setFormData({ ...formData, tamilWord: e.target.value })} />
-              </div>
-              <div className="form-group full-width">
-                <label>Tamil Meaning</label>
-                <textarea rows="2" placeholder="சவால்களை எதிர்கொண்டு மீண்டும் பழைய நிலைக்குத் திரும்பும் திறன்." required value={formData.tamilMeaning} onChange={(e) => setFormData({ ...formData, tamilMeaning: e.target.value })} />
-              </div>
-              <div className="form-group full-width">
-                <label>Tamil Example Sentence</label>
-                <textarea rows="2" placeholder="தோல்விக்குப் பிறகும் அவர் மீண்டெழும் திறனைக் காட்டினார்." required value={formData.tamilExample} onChange={(e) => setFormData({ ...formData, tamilExample: e.target.value })} />
+                <input type="text" value={editFormData.easy.tamil} onChange={(e) => setEditFormData({ ...editFormData, easy: { ...editFormData.easy, tamil: e.target.value } })} />
               </div>
             </div>
-            <div className="form-actions" style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem' }}>
-              <button type="button" className="btn-icon" onClick={() => setFormData({
-                date: new Date().toISOString().split('T')[0],
-                difficulty: 'Easy',
-                englishWord: '', englishMeaning: '', englishExample: '',
-                tamilWord: '', tamilMeaning: '', tamilExample: ''
-              })} title="Reset Form">
-                <RefreshCcw size={20} />
-              </button>
-              <button type="submit" className="btn btn-primary">
-                <Send size={18} /> Publish Word
-              </button>
+
+            <div className="mode-edit-section">
+              <h3 style={{ color: 'var(--danger)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div style={{ width: '10px', height: '10px', background: 'var(--danger)', borderRadius: '50%' }} /> Hard Mode
+              </h3>
+              <div className="form-group">
+                <label>English Word</label>
+                <input type="text" value={editFormData.hard.word} onChange={(e) => setEditFormData({ ...editFormData, hard: { ...editFormData.hard, word: e.target.value } })} />
+              </div>
+              <div className="form-group">
+                <label>Meaning</label>
+                <textarea rows="3" value={editFormData.hard.meaning} onChange={(e) => setEditFormData({ ...editFormData, hard: { ...editFormData.hard, meaning: e.target.value } })} />
+              </div>
+              <div className="form-group">
+                <label>Tamil Translation</label>
+                <input type="text" value={editFormData.hard.tamil} onChange={(e) => setEditFormData({ ...editFormData, hard: { ...editFormData.hard, tamil: e.target.value } })} />
+              </div>
             </div>
           </div>
-        </form>
+        </div>
+      </motion.div>
+    );
+  }
 
-        <div className="history-panel">
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title-group">
-                <h2>Word Timeline</h2>
-                <p>Day-wise publishing history</p>
-              </div>
-            </div>
+  return (
+    <motion.div {...pageTransition} className="studio-layout">
+      <div className="calendar-container">
+        <div className="calendar-header">
+          <h2>{currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h2>
+          <div className="calendar-nav">
+            <button className="nav-btn" onClick={handlePrevMonth}><ChevronLeft size={20} /></button>
+            <button className="nav-btn" onClick={handleNextMonth}><ChevronRight size={20} /></button>
+          </div>
+        </div>
+        <div className="calendar-grid">
+          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+            <div key={day} className="weekday-label">{day}</div>
+          ))}
+          {renderCalendar()}
+        </div>
+      </div>
 
-            <div className="history-list">
-              {history.map(item => (
-                <div key={item.id} className="history-item">
-                  <div className="history-date">
-                    <span className="day">{new Date(item.date).getDate()}</span>
-                    <span className="month">{new Date(item.date).toLocaleDateString('en-US', { month: 'short' })}</span>
-                  </div>
-                  <div className="history-info">
-                    <div className="history-word-row">
-                      <strong>{item.word}</strong>
-                      <span className={`difficulty-badge sm ${item.difficulty.toLowerCase()}`}>{item.difficulty}</span>
-                    </div>
-                    <span className={`status-tag ${item.status.toLowerCase()}`}>{item.status}</span>
-                  </div>
-                  <button className="btn-icon sm"><Eye size={14} /></button>
-                </div>
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title-group">
+            <h2>Day-wise Word Summary</h2>
+            <p>Overview of scheduled and published words</p>
+          </div>
+        </div>
+        <div className="table-container">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Target Date</th>
+                <th>Easy Word</th>
+                <th>Hard Word</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.keys(wordDatabase).sort((a, b) => b.localeCompare(a)).map(date => (
+                <tr key={date}>
+                  <td><strong>{date}</strong></td>
+                  <td>{wordDatabase[date].easy.word || '-'}</td>
+                  <td>{wordDatabase[date].hard.word || '-'}</td>
+                  <td>
+                    <span className={`badge ${date >= new Date().toISOString().split('T')[0] ? 'badge-positive' : ''}`}>
+                      {date === new Date().toISOString().split('T')[0] ? 'Active' : (date > new Date().toISOString().split('T')[0] ? 'Scheduled' : 'Passed')}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="btn btn-outline btn-sm" onClick={() => handleOpenDay(date)}>Edit</button>
+                  </td>
+                </tr>
               ))}
-            </div>
-          </div>
+            </tbody>
+          </table>
         </div>
       </div>
     </motion.div>
@@ -695,15 +749,6 @@ const ScoreMonitoring = ({ users, resetScores, showConfirm }) => {
 
   return (
     <motion.div {...pageTransition}>
-      <div className="scores-header">
-        <button
-          className="btn btn-danger-outline"
-          onClick={() => showConfirm('Reset All Weekly Scores', 'This will set the weekly progress to zero for all users. Continue?', resetScores)}
-          style={{ padding: '0.75rem 1.25rem', gap: '0.5rem', borderRadius: '50px' }}
-        >
-          <RefreshCcw size={16} /> Reset Cycle
-        </button>
-      </div>
 
       <div className="scores-grid">
         <div className="card">
